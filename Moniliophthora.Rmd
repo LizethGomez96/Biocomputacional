@@ -1,0 +1,167 @@
+---
+title: "Ánalisis de ocurrencias GBIF de Moniliophthora"
+author: "Lizeth Gomez"
+date: "2026-02-10"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+***Moniliophthora***
+
+**a. Describa el grupo de interés y por qué es interesante. Cómo se
+realizó la búsqueda y los parámetros de descarga.**
+
+Los hongos del género *Moniliophtora* que pertenecen a la familia
+Marasmiaceae, son conocidos principalmente por dos de sus especies que
+son fitopatógenas y causan estragos a nivel económico en varias regiones
+de America Latina.(Diaz-Valderrama & Aime 2016)
+
+*Moniliophthora roreri:* causande de la moniliaasis del fruto infectando
+directamente la mazorca del cacao. *Moniliophthora perniciosa:* provoca
+la escoba de bruja, induce un crecimiento descontrolado de las ramas,
+haciendo que parezcan escobas, además de podrir los
+frutos.(Diaz-Valderrama & Aime 2016)
+
+Estas enfermedades causadas por estos hongos en la mazorca del cacao los
+hace muy interesantes ya que han llegado a reducir significativamente la
+producción de cacao por lo que se ha querido encontrar estrategias para
+combatirle.
+
+Cómo se realizó la búsqueda y los parámetros de descarga:
+
+1.  Entré a la página de GBIF y le dí clic en ocurrencias.
+
+2.  Escribí el nombre cientifico en este caso el género
+    *Moniliophthora.*
+
+3.  Selecioné continente: norteamerica y suramerica.
+
+4.  Descarga simple.
+
+5.  Esperé que llegara a mi correo y lo descargué.
+
+6.  Descomprimí y extraje el archivo excel.
+
+**b. Los comandos de linux para crear y organizar los datos**
+
+-   Entre a mi home y con **mkdir** cree la carpeta taller1 y dentro de
+    esta cree la carpeta data:
+
+![](images/clipboard-2971135511.png){width="619" height="23"}
+
+-   Entré a la carpeta data con el comando cd data y dentro de esta con
+    el comando **wget** descargué el archivo con el link que me llegó al
+    correo desde GBIF (este era un archivo .zip), acontinuación se
+    muestra el proceso de descarga.
+
+![](images/clipboard-3389590673.png){width="542"}
+
+-   Después de esto descomprimí el archivo .zip con el siguiente
+    comando: **Unzip** previamente instalado.
+
+![](images/clipboard-39591624.png){width="533"}
+
+-   Con el comando ls me aseguré que el archivo **.csv** estaba por
+    fuera y con **mv** le cambié el nombre.
+
+-   Con el comando **wc -l** conté las filas del documento descargado,
+    dando como resultado 478 lineas.
+
+![](images/clipboard-1108941296.png){width="395"}
+
+-   Posteriormente cree la siguiente carpeta con **mkdir** y dentro de
+    esta subí el (.Rmd)
+
+![](images/clipboard-1697816314.png){width="296"}
+
+-   Con el comando **cd/mnt/Users/LIDOG** accedía a mi carpeta de
+    windows que contenía mi archivo .Rmd
+
+    ![](images/clipboard-206736403.png){width="533"}
+
+<!-- -->
+
+-   Entré a los archivos de Biocompu y cree una copia de mi (.Rmd) con
+    **cp** y los moví con **mv** a la carpeta destino.
+
+    ![](images/clipboard-1820230506.png){width="553"}![](images/clipboard-1756817099.png){width="613"}
+
+    ![](images/clipboard-4002142189.png){width="427"}
+
+**c. Genere una gráfica con la ocurrencia de este grupo (por ejemplo un
+barplot) y registre los comandos utilizados.**
+
+Acontinuación generé la gráfica:
+
+```{r Moniliophthora, echo = FALSE}
+# leemos los datos descargados y guardados
+gbif_data <- read.csv(
+  "gbiff_Moniliopthrora.csv",
+  row.names = NULL, #necesario para que no numere las filas 
+  stringsAsFactors = FALSE, 
+  sep = "\t" #la separación de columnas es tipo "tab"
+)
+# Reemplazar valores vacíos o NA en la columna species
+gbif_data$species[gbif_data$species == "" | is.na(gbif_data$species)] <- "Especies desconocidas"
+gbif_data$species <- gsub("^([A-Z])[a-z]+ ", "\\1. ", gbif_data$species) # para que tome solo la primer letra del género
+
+tabla_sp <- table(gbif_data$species)
+
+tabla_sp <- sort(tabla_sp, decreasing = TRUE)# con este código ordeno la tabla de mayor a menor
+nombres_italica <- as.expression(lapply(names(tabla_sp), function(x) bquote(italic(.(x)))))
+par(mar = c(10, 5, 5, 2)) 
+colores <- c("#264653", "#2a9d8f", "#e9c46a", "#f4a261", "#e76f51")
+
+pos<-barplot(
+  tabla_sp,
+  names.arg = nombres_italica,
+  las = 2,                                # Etiquetas perpendiculares
+  main = "Ocurrencias de Moniliophthora por especie (GBIF)",
+  ylab = "Número de registros",
+  col = colores[1:length(tabla_sp)],
+  border = NA,
+  ylim = c(0, max(tabla_sp) * 1.5),       # Alarga el eje Y un 20% más que el máximo
+  cex.lab = 1.1,                     # Tamaño de letra del eje Y
+  cex.main = 1.3                     # Tamaño del título
+)
+
+grid(nx = NA, ny = NULL, col = "gray90", lty = "solid")
+text(
+  x = pos, 
+  y = as.numeric(tabla_sp), 
+  labels = as.numeric(tabla_sp), 
+  pos = 3,             # Encima de la barra
+  cex = 1,           # Tamaño del número
+  font = 1,            # Negrita
+  xpd = TRUE           # Permite escribir fuera de los límites si es necesario
+)
+
+```
+
+**d. Incluya una breve interpretación del gráfico.**
+
+**Interpretación.** En esta gráfica se puede observar que la especie con
+el mayor número de registros en *Moniliophthora roreri* con 336
+ocurrencias seguido de *M.perniciosa*, lo que me lleva a concluir que
+este género esta fuertemente representado por dos patógenos principales
+del cacao. Esta dominancia sugiere que es la especie de mayor interés
+económico, investigativo y de mayor distribución geográfica en el área
+de estudio. Al ser el agente causante de la moniliasis del cacao, su
+alta frecuencia en las bases de datos refleja su impacto en la
+agricultura tropical.
+
+**Referencias.**
+
+Díaz-Valderrama, J., Aime, M. El patógeno del cacao *Moniliophthora
+roreri* (Marasmiaceae) posee loci de apareamiento *bialeléticos
+A* y *B*, pero se reproduce clonalmente. *Heredity* **116**, 491–501
+(2016). <https://doi.org/10.1038/hdy.2016.5>
+
+GBIF.org (10 February 2026) GBIF Occurrence
+Download <https://doi.org/10.15468/dl.b4ufsh>
