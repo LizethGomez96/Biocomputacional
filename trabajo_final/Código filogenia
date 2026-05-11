@@ -1,0 +1,11 @@
+Activar el ambiente filogenia.
+sudo apt update && sudo apt install mafft iqtree -y
+mafft --auto secuencias_filogenia.fasta > secuencias_alineadas.fasta
+iqtree2 -s secuencias_alineadas.fasta -bb 1000 -m MFP
+#enraizar el árbol
+
+iqtree -s secuencias_alineadas.fasta -m MFP -bb 1000 -o "AH010212.2 Saccharomyces cerevisiae" -redo
+#para poder visualizar el arbol 
+sudo apt update && sudo apt install newick-utils -y
+conda install -c bioconda newick_utils -y
+nw_display secuencias_alineadas.fasta.treefile
