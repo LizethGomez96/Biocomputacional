@@ -1,0 +1,8 @@
+module load clustalw
+
+# Activate a virtual environment
+source activate filogenia
+
+# Generación del alineamiento
+clustalw2 -infile secuencias_moniliophthora.fasta -type DNA -outfile alineamiento_ITS.aln -output CLUSTAL
+
